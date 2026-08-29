@@ -5,11 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
 <title>Касса</title>
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#F0EEE6">
+<meta name="theme-color" content="#1F1E1D">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Касса">
-<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="apple-touch-icon" id="tIcon512" href="icon-512.png">
+<link rel="apple-touch-icon" sizes="192x192" id="tIcon192" href="icon-192.png">
 <style>
 :root{
   --bg:#F0EEE6; --card:#FFFFFF; --ink:#1F1E1D; --mid:#73716C;
@@ -23,6 +24,7 @@ body{padding-bottom:calc(84px + env(safe-area-inset-bottom))}
 .wrap{max-width:480px;margin:0 auto;padding:calc(20px + env(safe-area-inset-top)) 18px 0}
 h1{font-family:var(--serif);font-size:26px;font-weight:400;margin:0 0 18px}
 .hidden{display:none!important}
+.cap{font-size:11.5px;color:var(--mid);text-transform:uppercase;letter-spacing:.06em}
 
 .seg{display:flex;background:var(--chip);border-radius:12px;padding:3px;gap:3px}
 .seg button{flex:1;padding:10px 0;border:none;border-radius:9px;background:transparent;color:var(--mid);
@@ -38,6 +40,11 @@ input{padding:13px 14px;border-radius:12px;border:1px solid var(--line);backgrou
 #title{flex:1}
 input.flash{border-color:var(--accent)}
 input.flash.inc{border-color:var(--income)}
+#search{width:100%;margin-bottom:14px}
+
+.hint{display:flex;align-items:center;gap:8px;margin-top:9px;font-size:13px;color:var(--mid);min-height:20px}
+.tag{display:inline-block;padding:3px 9px;border-radius:999px;background:var(--ink);color:var(--bg);font-size:12.5px}
+.tag.n{background:var(--chip);color:var(--mid)}
 
 .cats{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
 .cats button{padding:7px 12px;border-radius:999px;font-size:13px;cursor:pointer;font-family:var(--sans);
@@ -49,7 +56,6 @@ input.flash.inc{border-color:var(--income)}
 #submit.inc{background:var(--income)}
 
 .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-top:12px}
-.cap{font-size:11.5px;color:var(--mid);text-transform:uppercase;letter-spacing:.06em}
 .big{font-family:var(--serif);font-size:22px}
 .sub{display:flex;gap:18px;margin-top:8px;font-size:13px;color:var(--mid)}
 .sub b{font-weight:500}
@@ -59,9 +65,10 @@ input.flash.inc{border-color:var(--income)}
 .bar{width:3px;height:30px;border-radius:2px;flex:none}
 .op .t{flex:1;min-width:0}
 .op .t .n{font-size:14.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.op .t .m{font-size:12px;color:var(--mid);margin-top:2px}
+.op .t .m{font-size:12px;color:var(--mid);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .op .v{font-family:var(--serif);font-size:16px}
-.op .x{border:none;background:transparent;color:var(--mid);opacity:.4;font-size:18px;padding:0 2px;cursor:pointer}
+.op .act{border:none;background:transparent;color:var(--mid);opacity:.45;font-size:17px;padding:0 3px;cursor:pointer}
+.op.dead .n,.op.dead .v{text-decoration:line-through;opacity:.5}
 .empty{color:var(--mid);font-size:14px;line-height:1.5;padding:8px 2px}
 
 .nav{display:flex;align-items:center;justify-content:space-between;margin:14px 0 10px}
@@ -89,14 +96,33 @@ input.flash.inc{border-color:var(--income)}
 .track{height:5px;background:var(--chip);border-radius:3px}
 .track div{height:100%;background:var(--accent);border-radius:3px}
 
+.prj{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin-bottom:10px;cursor:pointer}
+.prj.open{border-color:var(--ink)}
+.prj .top{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.prj .nm{font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.prj .tot{font-family:var(--serif);font-size:18px;flex:none}
+.prj .meta{font-size:12px;color:var(--mid);margin-top:5px}
+.prj .body{margin-top:12px;border-top:1px solid var(--line);padding-top:6px}
+.merge{display:flex;gap:8px;margin-top:12px}
+select{flex:1;padding:10px;border-radius:10px;border:1px solid var(--line);background:var(--bg);
+  color:var(--ink);font-family:var(--sans);font-size:14px;min-width:0}
+
 .ghost{width:100%;margin-top:12px;padding:12px 0;border-radius:12px;border:1px solid var(--line);
   background:var(--card);color:var(--ink);font-size:14px;font-family:var(--sans);cursor:pointer}
+.ghost.sm{width:auto;padding:10px 14px;margin:0}
+
+.picker{display:flex;gap:12px;margin-top:14px}
+.picker .opt{flex:1;border:1px solid var(--line);background:var(--card);border-radius:14px;padding:12px;
+  cursor:pointer;text-align:center;font-family:var(--sans);color:var(--mid);font-size:13px}
+.picker .opt img{width:100%;max-width:104px;border-radius:20px;display:block;margin:0 auto 9px}
+.picker .opt.on{border-color:var(--ink);color:var(--ink);font-weight:500}
+.note{font-size:13px;color:var(--mid);line-height:1.55;margin-top:14px}
 
 .tabs{position:fixed;left:0;right:0;bottom:0;background:rgba(240,238,230,.93);
   backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-top:1px solid var(--line)}
-.tabs .in{max-width:480px;margin:0 auto;display:flex;gap:8px;padding:10px 18px calc(14px + env(safe-area-inset-bottom))}
+.tabs .in{max-width:480px;margin:0 auto;display:flex;gap:6px;padding:10px 14px calc(14px + env(safe-area-inset-bottom))}
 .tabs button{flex:1;padding:11px 0;border-radius:11px;border:none;background:transparent;color:var(--mid);
-  font-size:14.5px;font-family:var(--sans);cursor:pointer}
+  font-size:13.5px;font-family:var(--sans);cursor:pointer}
 .tabs button.on{background:var(--ink);color:var(--bg)}
 </style>
 </head>
@@ -118,9 +144,10 @@ input.flash.inc{border-color:var(--income)}
 
   <div class="row">
     <input id="amount" inputmode="decimal" placeholder="0">
-    <input id="title" placeholder="Название">
+    <input id="title" placeholder="На что / за что">
   </div>
 
+  <div class="hint" id="hint"></div>
   <div class="cats" id="cats"></div>
   <button id="submit">Записать расход</button>
 
@@ -136,6 +163,14 @@ input.flash.inc{border-color:var(--income)}
   </div>
 
   <div id="todayList" style="margin-top:20px"></div>
+</div>
+
+<!-- ПРОЕКТЫ -->
+<div class="wrap hidden" id="screenProj">
+  <h1>Проекты</h1>
+  <input id="search" placeholder="Найти проект">
+  <div id="projList"></div>
+  <p class="note" id="projNote">Проект подхватывается из описания: «шнурки <b>для ИВХ</b>», «камни <b>для Игоря Васильевича</b>», «<b>#мутация</b>». Всё с одним и тем же адресатом собирается в одну карточку, даже если траты шли месяцами.</p>
 </div>
 
 <!-- ОТЧЁТНОСТЬ -->
@@ -183,6 +218,11 @@ input.flash.inc{border-color:var(--income)}
     <div id="catBreak"></div>
   </div>
 
+  <div class="card" id="prjCard">
+    <div class="cap" style="margin-bottom:12px">Расходы по проектам</div>
+    <div id="prjBreak"></div>
+  </div>
+
   <button class="ghost" id="copyBtn">Скопировать отчёт</button>
 
   <div style="margin-top:20px">
@@ -191,33 +231,190 @@ input.flash.inc{border-color:var(--income)}
   </div>
 </div>
 
+<!-- ЖУРНАЛ И НАСТРОЙКИ -->
+<div class="wrap hidden" id="screenMore">
+  <h1>Журнал</h1>
+
+  <div class="cats" id="segLog" style="margin:0 0 14px">
+    <button data-v="all" class="on">Все</button>
+    <button data-v="live">Активные</button>
+    <button data-v="dead">Удалённые</button>
+  </div>
+
+  <div id="logList"></div>
+
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:baseline">
+      <span class="cap">Записей активных</span>
+      <span class="big" id="setCount">0</span>
+    </div>
+    <div class="sub"><span id="setSince"></span></div>
+  </div>
+
+  <div class="cap" style="margin-top:26px">Иконка приложения</div>
+  <div class="picker" id="iconPicker">
+    <div class="opt on" data-icon="dark"><img src="icon-192.png" alt="Тёмная"><div>Тёмная</div></div>
+    <div class="opt" data-icon="light"><img src="icon-light-192.png" alt="Светлая"><div>Светлая</div></div>
+  </div>
+  <p class="note">Чтобы иконка сменилась на домашнем экране, удалите ярлык и добавьте сайт заново из Safari — iOS запоминает картинку в момент установки.</p>
+</div>
+
 <div class="tabs"><div class="in">
   <button data-t="add" class="on">Запись</button>
-  <button data-t="stats">Отчётность</button>
+  <button data-t="proj">Проекты</button>
+  <button data-t="stats">Отчёт</button>
+  <button data-t="more">Журнал</button>
 </div></div>
 
 <script>
-/* ── Данные ─────────────────────────────────────────────── */
-var KEY = 'kassa:ledger:v1';
+/* ══ Данные ═════════════════════════════════════════════ */
+var KEY = 'kassa:ledger:v1', AKEY = 'kassa:aliases:v1', NKEY = 'kassa:names:v1';
 var CATS = {
-  business:['Материалы','Литьё','Камни','Инструмент','Аренда','Реклама','Доставка','Прочее'],
-  personal:['Еда','Транспорт','Дом','Одежда','Здоровье','Отдых','Прочее'],
-  income:['Заказы','Кальянная','Одиссей','Сайт','Прочее']
+  business:['Материалы','Литьё','Камни','Инструмент','Аренда','Реклама','Доставка','Подряд','Прочее'],
+  personal:['Еда','Транспорт','Дом','Одежда','Здоровье','Связь','Отдых','Прочее'],
+  income:['Заказы','Кальянная','Одиссей','Обучение','Сайт','Прочее']
 };
-var MONTHS=['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
-var MONTHS_N=['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
-var DOW=['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
+/* слово-подсказка → [область, категория]; ищется по началу слова */
+var KEYWORDS = [
+  ['business','Литьё',      ['лить','отлив','воск','ёлк','елк','формовк']],
+  ['business','Камни',      ['камн','фианит','бриллиант','сапфир','оникс','шпинел','агат','топаз','гранат','жемчуг']],
+  ['business','Материалы',  ['серебр','золот','припой','флюс','лигатур','кислот','наждач','полировал','паст','цепоч','цеп','замок','фурнитур','родий','гальван','металл','шлифов']],
+  ['business','Инструмент', ['инструмент','бор','фрез','надфил','штихел','горелк','вальц','цанг','бормашин','тиск','пинцет','лобзик','сверл','анод']],
+  ['business','Аренда',     ['аренд','мастерск','коворкинг','цех']],
+  ['business','Реклама',    ['реклам','таргет','продвижен','блогер','промо','съёмк','съемк','фотограф','монтаж']],
+  ['business','Доставка',   ['доставк','сдэк','почт','курьер','боксберри','яндекс достав','отправк','посылк']],
+  ['business','Подряд',     ['подряд','гравер','гравиров','закрепщ','моделлер','3d','рендер','дизайнер']],
+  ['personal','Транспорт',  ['такси','метро','бензин','заправк','каршеринг','самокат','билет','поезд','аэроэкспресс','автобус','парковк','яндекс go']],
+  ['personal','Еда',        ['ед','продукт','кофе','обед','ужин','завтрак','кафе','ресторан','шаурм','магазин','пятёрочк','пятерочк','перекрёсток','перекресток','вкусвилл','бар ']],
+  ['personal','Дом',        ['квартир','коммунал','жкх','быт','мебел','ремонт','уборк','химчистк','свет','вод']],
+  ['personal','Одежда',     ['одежд','кроссовк','обув','куртк','штан','футболк','шнурк','джинс','рубашк']],
+  ['personal','Здоровье',   ['аптек','врач','стоматолог','анализ','зал','спортзал','витамин','массаж','лекарств']],
+  ['personal','Связь',      ['интернет','связ','телефон','сим','тариф','подписк','хостинг','домен']],
+  ['personal','Отдых',      ['кино','концерт','бар','клуб','отпуск','отел','тату','книг','игр']],
+  ['income','Кальянная',    ['кальян','смен','чаев']],
+  ['income','Одиссей',      ['одиссе','командиров']],
+  ['income','Обучение',     ['урок','учениц','ученик','обучен','ментор','курс','мастер-класс']],
+  ['income','Сайт',         ['сайт','магазин заказ','маркетплейс']],
+  ['income','Заказы',       ['заказ','кастом','предоплат','аванс','оплат','перевод','продаж']]
+];
 
-var items = [];
-try { items = JSON.parse(localStorage.getItem(KEY) || '[]'); } catch(e) { items = []; }
+function loadJSON(k, d){ try { return JSON.parse(localStorage.getItem(k)) || d; } catch(e){ return d; } }
+var items = loadJSON(KEY, []);
+var aliases = loadJSON(AKEY, {});
+var names = loadJSON(NKEY, {});
 function save(){ localStorage.setItem(KEY, JSON.stringify(items)); }
+function saveAliases(){ localStorage.setItem(AKEY, JSON.stringify(aliases)); }
+function saveNames(){ localStorage.setItem(NKEY, JSON.stringify(names)); }
 
-var S = { type:'expense', scope:'business', cat:'Материалы', kind:'month', offset:0, filter:'all' };
+var S = { type:'expense', scope:'business', cat:'Материалы', touched:false,
+          kind:'month', offset:0, filter:'all', log:'all', open:'', q:'' };
 
 var $ = function(id){ return document.getElementById(id); };
 var money = function(n){ return new Intl.NumberFormat('ru-RU').format(Math.round(n)); };
+function esc(s){ return String(s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+function live(){ return items.filter(function(x){ return !x.del; }); }
 
-/* ── Периоды ────────────────────────────────────────────── */
+/* ══ Проекты: разбор описания ═══════════════════════════ */
+var ENDINGS = ['ого','его','ому','ему','ыми','ими','ах','ях','ов','ев','ой','ей','ый','ий','ая','яя','ую','юю','ам','ям','ом','ем','а','я','у','ю','ы','и','е','о','ь'];
+function stem(w){
+  if(w.length <= 3) return w;
+  for(var i=0;i<ENDINGS.length;i++){
+    var e = ENDINGS[i];
+    if(w.length - e.length >= 3 && w.slice(-e.length) === e) return w.slice(0, -e.length);
+  }
+  return w;
+}
+function normKey(s){
+  return String(s).toLowerCase().replace(/ё/g,'е')
+    .replace(/[^a-zа-я0-9\s\-]/g,' ').split(/\s+/)
+    .filter(Boolean).map(stem).join(' ');
+}
+function parseProject(text){
+  var t = String(text).trim();
+  var m = t.match(/#([^\s#]+)/);
+  if(m) return m[1];
+  m = t.match(/(?:^|\s)(?:для|по проекту|проект|заказ для|в проект)\s+(.{2,44})$/i);
+  if(m) return m[1].trim().replace(/[.,;:!?)]+$/,'');
+  return '';
+}
+function resolve(k){
+  var seen = {}, n = 0;
+  while(k && aliases[k] && !seen[k] && n++ < 20){ seen[k] = 1; k = aliases[k]; }
+  return k;
+}
+function initials(k){
+  return k.split(' ').filter(Boolean).map(function(w){ return w.charAt(0); }).join('');
+}
+function knownKeys(){
+  var set = {};
+  live().forEach(function(x){ if(x.pkey) set[resolve(x.pkey)] = 1; });
+  return Object.keys(set);
+}
+/* новая запись: находим, к какому проекту её приклеить */
+function linkKey(raw){
+  var k = normKey(raw);
+  if(!k) return '';
+  var keys = knownKeys(), i;
+  if(keys.indexOf(k) >= 0) return k;
+  var short = k.indexOf(' ') === -1 && k.length <= 5;
+  for(i=0;i<keys.length;i++){
+    var e = keys[i], ei = initials(e), ki = initials(k);
+    if(short && ei.length >= 2 && (ei === k || ei.indexOf(k) === 0 || k.indexOf(ei) === 0)){
+      aliases[k] = e; saveAliases(); return k;           // ИВХ → Игорь Васильевич
+    }
+    if(!short && e.indexOf(' ') === -1 && e.length <= 5 && ki.length >= 2 &&
+       (ki === e || ki.indexOf(e) === 0 || e.indexOf(ki) === 0)){
+      aliases[e] = k; saveAliases(); return k;           // наоборот: старое сокращение → новое полное
+    }
+    if(e.indexOf(k) === 0 || k.indexOf(e) === 0){ aliases[k] = e; saveAliases(); return k; }
+  }
+  return k;
+}
+/* красивое имя проекта — самое длинное из встречавшихся написаний */
+function projName(key){
+  if(names[key]) return names[key];
+  var best = '';
+  live().forEach(function(x){
+    if(x.pkey && resolve(x.pkey) === key && x.proj && x.proj.length > best.length) best = x.proj;
+  });
+  return best || key;
+}
+function projects(){
+  var map = {};
+  live().forEach(function(x){
+    if(!x.pkey) return;
+    var k = resolve(x.pkey);
+    if(!map[k]) map[k] = { key:k, exp:0, inc:0, n:0, last:0, ops:[] };
+    var p = map[k];
+    if(x.type === 'income') p.inc += x.amount; else p.exp += x.amount;
+    p.n++; p.ops.push(x);
+    var t = new Date(x.at).getTime();
+    if(t > p.last) p.last = t;
+  });
+  return Object.keys(map).map(function(k){
+    map[k].name = projName(k);
+    return map[k];
+  }).sort(function(a,b){ return b.last - a.last; });
+}
+
+/* ══ Автокатегория ══════════════════════════════════════ */
+function guess(text, type){
+  var t = ' ' + String(text).toLowerCase().replace(/ё/g,'е') + ' ';
+  for(var i=0;i<KEYWORDS.length;i++){
+    var row = KEYWORDS[i];
+    if(type === 'income' && row[0] !== 'income') continue;
+    if(type === 'expense' && row[0] === 'income') continue;
+    for(var j=0;j<row[2].length;j++){
+      if(t.indexOf(row[2][j]) >= 0) return { scope:row[0], cat:row[1] };
+    }
+  }
+  return null;
+}
+
+/* ══ Периоды ════════════════════════════════════════════ */
+var MONTHS=['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
+var MONTHS_N=['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+var DOW=['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
 function sod(d){ var x=new Date(d); x.setHours(0,0,0,0); return x; }
 function addD(d,n){ var x=new Date(d); x.setDate(x.getDate()+n); return x; }
 function sow(d){ var x=sod(d); x.setDate(x.getDate()-((x.getDay()+6)%7)); return x; }
@@ -248,35 +445,45 @@ function period(kind, off){
   for(i=0;i<12;i++) by.push({from:new Date(s.getFullYear(),i,1), to:new Date(s.getFullYear(),i+1,1), name:MONTHS_N[i].slice(0,3)});
   return {start:s, end:e, buckets:by, label:String(s.getFullYear())};
 }
-function within(list, a, b){
-  return list.filter(function(x){ var d=new Date(x.at); return d>=a && d<b; });
-}
-function sum(list, t){
-  return list.filter(function(x){ return x.type===t; }).reduce(function(s,x){ return s+x.amount; },0);
-}
+function within(list,a,b){ return list.filter(function(x){ var d=new Date(x.at); return d>=a && d<b; }); }
+function sum(list,t){ return list.filter(function(x){ return x.type===t; }).reduce(function(s,x){ return s+x.amount; },0); }
 
-/* ── Список операций ────────────────────────────────────── */
-function opHTML(x, showDate){
+/* ══ Строка операции ════════════════════════════════════ */
+function opHTML(x, showDate, mode){
   var d = new Date(x.at), inc = x.type==='income';
   var color = inc ? 'var(--income)' : (x.scope==='business' ? 'var(--accent)' : 'var(--sand)');
   var time = ('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2);
   var date = showDate ? d.getDate()+' '+MONTHS[d.getMonth()].slice(0,3)+' ' : '';
-  return '<div class="op">'
+  var proj = x.proj ? ' · ' + esc(x.proj) : '';
+  var act = x.del
+    ? '<button class="act" data-undel="'+x.id+'" title="Вернуть">↺</button>'
+    : '<button class="act" data-del="'+x.id+'" title="Удалить">×</button>';
+  return '<div class="op'+(x.del?' dead':'')+'">'
     + '<div class="bar" style="background:'+color+'"></div>'
-    + '<div class="t"><div class="n">'+esc(x.title)+'</div><div class="m">'+x.cat+' · '+date+time+'</div></div>'
+    + '<div class="t"><div class="n">'+esc(x.title)+'</div>'
+    + '<div class="m">'+esc(x.cat)+' · '+date+time+proj+'</div></div>'
     + '<div class="v"'+(inc?' style="color:var(--income)"':'')+'>'+(inc?'+':'−')+money(x.amount)+'</div>'
-    + '<button class="x" data-del="'+x.id+'">×</button></div>';
+    + (mode==='ro' ? '' : act) + '</div>';
 }
-function esc(s){ return String(s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
 
 document.addEventListener('click', function(ev){
-  var id = ev.target.getAttribute && ev.target.getAttribute('data-del');
-  if(!id) return;
-  items = items.filter(function(x){ return x.id !== id; });
-  save(); renderAdd(); renderStats();
+  var el = ev.target, id;
+  if(!el.getAttribute) return;
+  id = el.getAttribute('data-del');
+  if(id){ ev.stopPropagation();
+    items.forEach(function(x){ if(x.id===id) x.del = new Date().toISOString(); });
+    save(); renderAll(); return; }
+  id = el.getAttribute('data-undel');
+  if(id){ ev.stopPropagation();
+    items.forEach(function(x){ if(x.id===id) x.del = null; });
+    save(); renderAll(); return; }
+  id = el.getAttribute('data-purge');
+  if(id){ ev.stopPropagation();
+    items = items.filter(function(x){ return x.id !== id; });
+    save(); renderAll(); return; }
 });
 
-/* ── Экран записи ───────────────────────────────────────── */
+/* ══ Экран записи ═══════════════════════════════════════ */
 function catList(){ return S.type==='income' ? CATS.income : CATS[S.scope]; }
 
 function renderCats(){
@@ -290,9 +497,18 @@ function renderCats(){
   $('submit').className = S.type==='income' ? 'inc' : '';
 }
 
+function renderHint(){
+  var raw = parseProject($('title').value);
+  if(!raw){ $('hint').innerHTML = '<span class="tag n">Без проекта</span>'; return; }
+  var k = normKey(raw), r = resolve(k), name = projName(r);
+  var known = knownKeys().indexOf(r) >= 0;
+  $('hint').innerHTML = '<span class="tag">' + esc(known ? name : raw) + '</span>'
+    + '<span>' + (known ? 'добавится к проекту' : 'новый проект') + '</span>';
+}
+
 function renderAdd(){
   var p = period('day',0);
-  var t = within(items, p.start, p.end);
+  var t = within(live(), p.start, p.end);
   var inc = sum(t,'income'), exp = sum(t,'expense'), net = inc-exp;
   $('dayInc').textContent = money(inc);
   $('dayExp').textContent = money(exp);
@@ -301,16 +517,16 @@ function renderAdd(){
   el.className = 'big ' + (net>=0?'pos':'neg');
   $('todayList').innerHTML = t.length
     ? t.map(function(x){ return opHTML(x,false); }).join('')
-    : '<p class="empty">За сегодня записей нет. Введите сумму и название выше.</p>';
+    : '<p class="empty">За сегодня записей нет. Введите сумму и описание выше.</p>';
 }
 
 $('cats').addEventListener('click', function(e){
   var c = e.target.getAttribute('data-cat');
-  if(c){ S.cat = c; renderCats(); }
+  if(c){ S.cat = c; S.touched = true; renderCats(); }
 });
 $('segType').addEventListener('click', function(e){
   var v = e.target.getAttribute('data-v'); if(!v) return;
-  S.type = v;
+  S.type = v; S.touched = false;
   [].forEach.call(this.children, function(b){
     b.className = b.getAttribute('data-v')===v ? 'on '+(v==='income'?'inc':'exp') : '';
   });
@@ -318,45 +534,158 @@ $('segType').addEventListener('click', function(e){
 });
 $('segScope').addEventListener('click', function(e){
   var v = e.target.getAttribute('data-v'); if(!v) return;
-  S.scope = v;
+  S.scope = v; S.touched = true;
   [].forEach.call(this.children, function(b){ b.className = b.getAttribute('data-v')===v?'on':''; });
   renderCats();
 });
 
+function autoCat(){
+  if(S.touched) return;
+  var g = guess($('title').value, S.type);
+  if(!g) return;
+  if(S.type !== 'income' && g.scope !== S.scope){
+    S.scope = g.scope;
+    [].forEach.call($('segScope').children, function(b){
+      b.className = b.getAttribute('data-v')===S.scope?'on':'';
+    });
+  }
+  S.cat = g.cat;
+  renderCats();
+}
+
 function submit(){
   var v = parseFloat(String($('amount').value).replace(',','.'));
   if(!v || v<=0){ $('amount').focus(); return; }
+  var text = ($('title').value || '').trim();
+  var raw = parseProject(text);
   items.unshift({
     id: Date.now()+'-'+Math.random().toString(36).slice(2,6),
     amount: v,
-    title: ($('title').value || '').trim() || S.cat,
+    title: text || S.cat,
     type: S.type,
     scope: S.type==='income' ? 'income' : S.scope,
     cat: S.cat,
-    at: new Date().toISOString()
+    proj: raw,
+    pkey: raw ? linkKey(raw) : '',
+    at: new Date().toISOString(),
+    del: null
   });
   save();
-  $('amount').value=''; $('title').value='';
+  $('amount').value = ''; $('title').value = '';
+  S.touched = false;
   var f = $('amount');
   f.className = 'flash' + (S.type==='income' ? ' inc' : '');
   setTimeout(function(){ f.className=''; }, 550);
-  renderAdd(); renderStats();
+  renderAll();
+  $('amount').focus();
 }
 $('submit').addEventListener('click', submit);
+$('amount').addEventListener('input', function(e){ e.target.value = e.target.value.replace(/[^\d.,]/g,''); });
+$('title').addEventListener('input', function(){ autoCat(); renderHint(); });
 ['amount','title'].forEach(function(id){
   $(id).addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.target.blur(); submit(); } });
-  $(id).addEventListener('input', function(e){
-    if(id==='amount') e.target.value = e.target.value.replace(/[^\d.,]/g,'');
-  });
 });
 
-/* ── Экран отчётности ───────────────────────────────────── */
+/* ══ Экран проектов ═════════════════════════════════════ */
+function renderProj(){
+  var list = projects(), q = S.q.toLowerCase();
+  if(q) list = list.filter(function(p){ return p.name.toLowerCase().indexOf(q) >= 0; });
+  if(!list.length){
+    $('projList').innerHTML = '<p class="empty">' + (S.q ? 'Ничего не нашлось.' : 'Проектов пока нет.') + '</p>';
+    return;
+  }
+  var all = projects();
+  $('projList').innerHTML = list.map(function(p){
+    var open = S.open === p.key;
+    var d = new Date(p.last);
+    var net = p.inc - p.exp;
+    var body = '';
+    if(open){
+      var opsHTML = p.ops.slice().sort(function(a,b){ return new Date(b.at)-new Date(a.at); })
+        .map(function(x){ return opHTML(x, true, 'ro'); }).join('');
+      var others = all.filter(function(o){ return o.key !== p.key; });
+      var sel = others.length
+        ? '<div class="merge"><select data-src="'+esc(p.key)+'">'
+          + others.map(function(o){ return '<option value="'+esc(o.key)+'">'+esc(o.name)+'</option>'; }).join('')
+          + '</select><button class="ghost sm" data-merge="'+esc(p.key)+'">Объединить</button></div>'
+        : '';
+      body = '<div class="body">' + opsHTML
+        + '<div class="sub" style="margin-top:10px">'
+        + '<span>Потрачено <b class="neg">'+money(p.exp)+'</b></span>'
+        + (p.inc ? '<span>Получено <b class="pos">'+money(p.inc)+'</b></span>' : '')
+        + '</div>' + sel
+        + '<div class="merge"><button class="ghost sm" data-rename="'+esc(p.key)+'">Переименовать</button>'
+        + '<button class="ghost sm" style="flex:1" data-pcopy="'+esc(p.key)+'">Скопировать смету</button></div></div>';
+    }
+    return '<div class="prj'+(open?' open':'')+'" data-prj="'+esc(p.key)+'">'
+      + '<div class="top"><span class="nm">'+esc(p.name)+'</span>'
+      + '<span class="tot'+(net>0?' pos':'')+'">'+(p.inc? (net>=0?'+':'−')+money(Math.abs(net)) : '−'+money(p.exp))+'</span></div>'
+      + '<div class="meta">'+p.n+' оп. · последняя '+d.getDate()+' '+MONTHS[d.getMonth()]+'</div>'
+      + body + '</div>';
+  }).join('');
+}
+
+$('search').addEventListener('input', function(e){ S.q = e.target.value; renderProj(); });
+$('projList').addEventListener('click', function(e){
+  var t = e.target, mk = t.getAttribute && t.getAttribute('data-merge');
+  if(mk){
+    var sel = document.querySelector('select[data-src="'+mk+'"]');
+    if(sel && sel.value && sel.value !== mk){ aliases[mk] = sel.value; saveAliases(); S.open = sel.value; renderAll(); }
+    return;
+  }
+  var rn = t.getAttribute && t.getAttribute('data-rename');
+  if(rn){
+    var cur = projName(rn);
+    var nn = window.prompt('Название проекта', cur);
+    if(nn !== null){
+      nn = nn.trim();
+      if(nn) names[rn] = nn; else delete names[rn];
+      saveNames(); renderAll();
+    }
+    return;
+  }
+  var pc = t.getAttribute && t.getAttribute('data-pcopy');
+  if(pc){
+    var p = projects().filter(function(x){ return x.key===pc; })[0];
+    if(p){
+      var txt = ['Проект: '+p.name].concat(
+        p.ops.slice().sort(function(a,b){ return new Date(a.at)-new Date(b.at); }).map(function(x){
+          var dd = new Date(x.at);
+          return (x.type==='income'?'+':'−') + money(x.amount) + ' ₽ · ' + x.title + ' · '
+            + dd.getDate() + ' ' + MONTHS[dd.getMonth()];
+        }),
+        ['', 'Потрачено: '+money(p.exp)+' ₽'],
+        p.inc ? ['Получено: '+money(p.inc)+' ₽', 'Итог: '+((p.inc-p.exp)>=0?'+':'−')+money(Math.abs(p.inc-p.exp))+' ₽'] : []
+      ).join('\n');
+      copy(txt, t, 'Скопировать смету');
+    }
+    return;
+  }
+  if(t.tagName === 'SELECT') return;
+  var card = t.closest ? t.closest('[data-prj]') : null;
+  if(card){
+    var k = card.getAttribute('data-prj');
+    S.open = (S.open === k) ? '' : k;
+    renderProj();
+  }
+});
+
+function copy(text, btn, back){
+  var done = function(){ btn.textContent = 'Скопировано'; setTimeout(function(){ btn.textContent = back; }, 1600); };
+  if(navigator.clipboard){ navigator.clipboard.writeText(text).then(done, done); }
+  else {
+    var ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta);
+    ta.select(); try{ document.execCommand('copy'); }catch(e){} document.body.removeChild(ta); done();
+  }
+}
+
+/* ══ Экран отчётности ═══════════════════════════════════ */
 function renderStats(){
   var p = period(S.kind, S.offset);
   $('periodLabel').textContent = p.label;
   $('next').className = S.offset===0 ? 'dim' : '';
 
-  var all = within(items, p.start, p.end);
+  var all = within(live(), p.start, p.end);
   var sc = S.filter==='all' ? all : all.filter(function(x){ return x.scope===S.filter; });
   var inc = sum(sc,'income'), exp = sum(sc,'expense'), net = inc-exp;
 
@@ -372,7 +701,6 @@ function renderStats(){
   $('lblB').textContent = 'Бизнес '+money(bz)+' ₽';
   $('lblP').textContent = 'Личное '+money(pr)+' ₽';
 
-  // динамика
   if(p.buckets){
     $('chartCard').classList.remove('hidden');
     var data = p.buckets.map(function(b){
@@ -387,25 +715,14 @@ function renderStats(){
         + '<div style="background:var(--income);height:'+(d.i/mx*80)+'px;min-height:'+(d.i?2:0)+'px"></div>'
         + '</div>'+(data.length<=12?'<div class="lbl">'+d.name+'</div>':'')+'</div>';
     }).join('');
-  } else {
-    $('chartCard').classList.add('hidden');
-  }
+  } else { $('chartCard').classList.add('hidden'); }
 
-  // категории
-  var map = {};
-  sc.filter(function(x){ return x.type==='expense'; }).forEach(function(x){ map[x.cat]=(map[x.cat]||0)+x.amount; });
-  var rows = Object.keys(map).map(function(k){ return [k,map[k]]; }).sort(function(a,b){ return b[1]-a[1]; });
-  if(rows.length){
-    $('catCard').classList.remove('hidden');
-    var mc = rows[0][1];
-    $('catBreak').innerHTML = rows.map(function(r){
-      return '<div class="catrow"><div class="h"><span>'+r[0]+'</span><span>'+money(r[1])+' ₽ · '
-        + Math.round(r[1]/Math.max(1,exp)*100)+'%</span></div>'
-        + '<div class="track"><div style="width:'+(r[1]/mc*100)+'%"></div></div></div>';
-    }).join('');
-  } else {
-    $('catCard').classList.add('hidden');
-  }
+  var rows = groupSum(sc.filter(function(x){ return x.type==='expense'; }), function(x){ return x.cat; });
+  paint('catCard','catBreak', rows, exp);
+
+  var prows = groupSum(sc.filter(function(x){ return x.type==='expense' && x.pkey; }),
+                       function(x){ return projName(resolve(x.pkey)); });
+  paint('prjCard','prjBreak', prows, exp);
 
   $('opsCap').textContent = 'Операции · '+sc.length;
   $('opsList').innerHTML = sc.length
@@ -413,11 +730,27 @@ function renderStats(){
     : '<p class="empty">В этом периоде записей нет.</p>';
 
   window.__report = ['Отчёт · '+p.label,
-    'Доходы: '+money(inc)+' ₽',
-    'Расходы: '+money(exp)+' ₽',
+    'Доходы: '+money(inc)+' ₽','Расходы: '+money(exp)+' ₽',
     'Итог: '+(net>=0?'+':'−')+money(Math.abs(net))+' ₽',
     'Бизнес: '+money(bz)+' ₽ · Личное: '+money(pr)+' ₽','',
-    'По категориям:'].concat(rows.map(function(r){ return '· '+r[0]+' — '+money(r[1])+' ₽'; })).join('\n');
+    'По категориям:'].concat(rows.map(function(r){ return '· '+r[0]+' — '+money(r[1])+' ₽'; }))
+    .concat(prows.length ? [''.concat(''), 'По проектам:'].concat(prows.map(function(r){ return '· '+r[0]+' — '+money(r[1])+' ₽'; })) : [])
+    .join('\n');
+}
+function groupSum(list, keyFn){
+  var m = {};
+  list.forEach(function(x){ var k = keyFn(x); m[k] = (m[k]||0) + x.amount; });
+  return Object.keys(m).map(function(k){ return [k, m[k]]; }).sort(function(a,b){ return b[1]-a[1]; });
+}
+function paint(cardId, boxId, rows, total){
+  if(!rows.length){ $(cardId).classList.add('hidden'); return; }
+  $(cardId).classList.remove('hidden');
+  var mx = rows[0][1];
+  $(boxId).innerHTML = rows.map(function(r){
+    return '<div class="catrow"><div class="h"><span>'+esc(r[0])+'</span><span>'+money(r[1])+' ₽ · '
+      + Math.round(r[1]/Math.max(1,total)*100)+'%</span></div>'
+      + '<div class="track"><div style="width:'+(r[1]/mx*100)+'%"></div></div></div>';
+  }).join('');
 }
 
 $('segKind').addEventListener('click', function(e){
@@ -434,27 +767,79 @@ $('segFilter').addEventListener('click', function(e){
 });
 $('prev').addEventListener('click', function(){ S.offset--; renderStats(); });
 $('next').addEventListener('click', function(){ if(S.offset<0){ S.offset++; renderStats(); } });
-$('copyBtn').addEventListener('click', function(){
-  var b = this;
-  var done = function(){ b.textContent='Отчёт скопирован'; setTimeout(function(){ b.textContent='Скопировать отчёт'; },1600); };
-  if(navigator.clipboard){ navigator.clipboard.writeText(window.__report).then(done, done); }
-  else {
-    var ta=document.createElement('textarea'); ta.value=window.__report; document.body.appendChild(ta);
-    ta.select(); try{ document.execCommand('copy'); }catch(e){} document.body.removeChild(ta); done();
-  }
+$('copyBtn').addEventListener('click', function(){ copy(window.__report, this, 'Скопировать отчёт'); });
+
+/* ══ Журнал и настройки ═════════════════════════════════ */
+function renderLog(){
+  var list = items.slice().sort(function(a,b){ return new Date(b.at) - new Date(a.at); });
+  if(S.log === 'live') list = list.filter(function(x){ return !x.del; });
+  if(S.log === 'dead') list = list.filter(function(x){ return !!x.del; });
+  $('logList').innerHTML = list.length
+    ? list.map(function(x){
+        var h = opHTML(x, true);
+        if(x.del) h = h.replace('</div>\n', '</div>');
+        return h;
+      }).join('')
+    : '<p class="empty">Пусто.</p>';
+
+  var l = live();
+  $('setCount').textContent = l.length;
+  if(l.length){
+    var d = new Date(l[l.length-1].at);
+    $('setSince').textContent = 'Первая запись — ' + d.getDate() + ' ' + MONTHS[d.getMonth()] + ' ' + d.getFullYear();
+  } else { $('setSince').textContent = 'Пока пусто'; }
+}
+$('segLog').addEventListener('click', function(e){
+  var v = e.target.getAttribute('data-v'); if(!v) return;
+  S.log = v;
+  [].forEach.call(this.children, function(b){ b.className = b.getAttribute('data-v')===v?'on':''; });
+  renderLog();
 });
 
-/* ── Вкладки ────────────────────────────────────────────── */
+var ICONS = {
+  dark:  { big:'icon-512.png',       small:'icon-192.png' },
+  light: { big:'icon-light-512.png', small:'icon-light-192.png' }
+};
+function applyIcon(v, store){
+  if(!ICONS[v]) v = 'dark';
+  if(store) localStorage.setItem('kassa:icon', v);
+  $('tIcon512').href = ICONS[v].big;
+  $('tIcon192').href = ICONS[v].small;
+  [].forEach.call($('iconPicker').children, function(el){
+    el.className = 'opt' + (el.getAttribute('data-icon')===v ? ' on' : '');
+  });
+  try {
+    var m = { name:'Касса', short_name:'Касса', start_url:'./', scope:'./',
+      display:'standalone', orientation:'portrait',
+      background_color: v==='light' ? '#F0EEE6' : '#1F1E1D',
+      theme_color: v==='light' ? '#F0EEE6' : '#1F1E1D',
+      icons:[ {src:ICONS[v].small, sizes:'192x192', type:'image/png', purpose:'any'},
+              {src:ICONS[v].big,   sizes:'512x512', type:'image/png', purpose:'any'} ] };
+    var link = document.querySelector('link[rel="manifest"]');
+    if(link) link.href = URL.createObjectURL(new Blob([JSON.stringify(m)], {type:'application/json'}));
+  } catch(e){}
+}
+$('iconPicker').addEventListener('click', function(e){
+  var el = e.target.closest ? e.target.closest('[data-icon]') : null;
+  if(el) applyIcon(el.getAttribute('data-icon'), true);
+});
+
+/* ══ Вкладки ════════════════════════════════════════════ */
 document.querySelector('.tabs .in').addEventListener('click', function(e){
   var t = e.target.getAttribute('data-t'); if(!t) return;
   [].forEach.call(this.children, function(b){ b.className = b.getAttribute('data-t')===t?'on':''; });
   $('screenAdd').classList.toggle('hidden', t!=='add');
+  $('screenProj').classList.toggle('hidden', t!=='proj');
   $('screenStats').classList.toggle('hidden', t!=='stats');
+  $('screenMore').classList.toggle('hidden', t!=='more');
   window.scrollTo(0,0);
-  if(t==='stats') renderStats();
+  renderAll();
 });
 
-renderCats(); renderAdd(); renderStats();
+function renderAll(){ renderCats(); renderHint(); renderAdd(); renderProj(); renderStats(); renderLog(); }
+
+applyIcon(localStorage.getItem('kassa:icon') || 'dark', false);
+renderAll();
 
 if('serviceWorker' in navigator){
   window.addEventListener('load', function(){ navigator.serviceWorker.register('sw.js'); });
