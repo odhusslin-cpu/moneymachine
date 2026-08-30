@@ -118,6 +118,17 @@ select{flex:1;padding:10px;border-radius:10px;border:1px solid var(--line);backg
 .picker .opt.on{border-color:var(--ink);color:var(--ink);font-weight:500}
 .note{font-size:13px;color:var(--mid);line-height:1.55;margin-top:14px}
 
+.modal{position:fixed;inset:0;background:rgba(31,30,29,.45);z-index:50;display:flex;align-items:flex-end;justify-content:center}
+.sheet{width:100%;max-width:480px;background:var(--bg);border-radius:20px 20px 0 0;padding:20px 18px calc(20px + env(safe-area-inset-bottom));
+  max-height:88vh;overflow:auto;box-shadow:0 -8px 30px rgba(0,0,0,.18)}
+.sheet h2{font-family:var(--serif);font-size:20px;font-weight:400;margin:0 0 4px}
+.sheet .when{font-size:12.5px;color:var(--mid);margin-bottom:14px}
+.acts{display:flex;gap:8px;margin-top:16px}
+.acts button{flex:1;padding:13px 0;border-radius:12px;font-size:15px;font-family:var(--sans);cursor:pointer;border:none}
+.acts .cancel{background:transparent;border:1px solid var(--line);color:var(--mid)}
+.acts .ok{background:var(--ink);color:var(--bg)}
+.op{cursor:pointer}
+
 .tabs{position:fixed;left:0;right:0;bottom:0;background:rgba(240,238,230,.93);
   backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-top:1px solid var(--line)}
 .tabs .in{max-width:480px;margin:0 auto;display:flex;gap:6px;padding:10px 14px calc(14px + env(safe-area-inset-bottom))}
@@ -142,6 +153,11 @@ select{flex:1;padding:10px;border-radius:10px;border:1px solid var(--line);backg
     <button data-v="personal">Личное</button>
   </div>
 
+  <div class="seg small" id="segPay" style="margin-top:8px">
+    <button data-v="cash" class="on">Наличные</button>
+    <button data-v="card">Карта</button>
+  </div>
+
   <div class="row">
     <input id="amount" inputmode="decimal" placeholder="0">
     <input id="title" placeholder="На что / за что">
@@ -160,6 +176,7 @@ select{flex:1;padding:10px;border-radius:10px;border:1px solid var(--line);backg
       <span>Пополнения <b class="pos" id="dayInc">0</b></span>
       <span>Расходы <b class="neg" id="dayExp">0</b></span>
     </div>
+    <div class="sub" id="dayPay"></div>
   </div>
 
   <div id="todayList" style="margin-top:20px"></div>
@@ -190,11 +207,17 @@ select{flex:1;padding:10px;border-radius:10px;border:1px solid var(--line);backg
     <button id="next" class="dim">→</button>
   </div>
 
-  <div class="cats" id="segFilter" style="margin-bottom:14px">
+  <div class="cats" id="segFilter" style="margin-bottom:8px">
     <button data-v="all" class="on">Всё</button>
     <button data-v="business">Бизнес</button>
     <button data-v="personal">Личное</button>
     <button data-v="income">Доходы</button>
+  </div>
+
+  <div class="cats" id="segPayF" style="margin:0 0 14px">
+    <button data-v="all" class="on">Любые деньги</button>
+    <button data-v="cash">Наличные</button>
+    <button data-v="card">Карта</button>
   </div>
 
   <div class="card" style="margin-top:0">
@@ -206,6 +229,9 @@ select{flex:1;padding:10px;border-radius:10px;border:1px solid var(--line);backg
     <div class="hr"></div>
     <div class="split"><div id="splitB" style="background:var(--accent)"></div><div id="splitP" style="background:var(--sand)"></div></div>
     <div class="splitl"><span id="lblB"></span><span id="lblP"></span></div>
+    <div class="hr"></div>
+    <div class="split"><div id="splitC" style="background:var(--ink)"></div><div id="splitK" style="background:var(--income)"></div></div>
+    <div class="splitl"><span id="lblC"></span><span id="lblK"></span></div>
   </div>
 
   <div class="card" id="chartCard">
@@ -235,10 +261,16 @@ select{flex:1;padding:10px;border-radius:10px;border:1px solid var(--line);backg
 <div class="wrap hidden" id="screenMore">
   <h1>Журнал</h1>
 
-  <div class="cats" id="segLog" style="margin:0 0 14px">
+  <div class="cats" id="segLog" style="margin:0 0 8px">
     <button data-v="all" class="on">Все</button>
     <button data-v="live">Активные</button>
     <button data-v="dead">Удалённые</button>
+  </div>
+
+  <div class="cats" id="segLogPay" style="margin:0 0 14px">
+    <button data-v="all" class="on">Любые деньги</button>
+    <button data-v="cash">Наличные</button>
+    <button data-v="card">Карта</button>
   </div>
 
   <div id="logList"></div>
@@ -258,6 +290,39 @@ select{flex:1;padding:10px;border-radius:10px;border:1px solid var(--line);backg
   </div>
   <p class="note">Чтобы иконка сменилась на домашнем экране, удалите ярлык и добавьте сайт заново из Safari — iOS запоминает картинку в момент установки.</p>
 </div>
+
+<div class="modal hidden" id="modal"><div class="sheet">
+  <h2>Правка записи</h2>
+  <div class="when" id="eWhen"></div>
+
+  <div class="seg" id="eType">
+    <button data-v="expense" class="on exp">Расход</button>
+    <button data-v="income">Доход</button>
+  </div>
+
+  <div class="seg small" id="eScope" style="margin-top:8px">
+    <button data-v="business" class="on">Бизнес</button>
+    <button data-v="personal">Личное</button>
+  </div>
+
+  <div class="seg small" id="ePay" style="margin-top:8px">
+    <button data-v="cash" class="on">Наличные</button>
+    <button data-v="card">Карта</button>
+  </div>
+
+  <div class="row">
+    <input id="eAmount" inputmode="decimal" placeholder="0">
+    <input id="eTitle" placeholder="На что / за что">
+  </div>
+
+  <div class="hint" id="eHint"></div>
+  <div class="cats" id="eCats"></div>
+
+  <div class="acts">
+    <button class="cancel" id="eCancel">Отмена</button>
+    <button class="ok" id="eSave">Сохранить</button>
+  </div>
+</div></div>
 
 <div class="tabs"><div class="in">
   <button data-t="add" class="on">Запись</button>
@@ -306,8 +371,17 @@ function save(){ localStorage.setItem(KEY, JSON.stringify(items)); }
 function saveAliases(){ localStorage.setItem(AKEY, JSON.stringify(aliases)); }
 function saveNames(){ localStorage.setItem(NKEY, JSON.stringify(names)); }
 
-var S = { type:'expense', scope:'business', cat:'Материалы', touched:false,
-          kind:'month', offset:0, filter:'all', log:'all', open:'', q:'' };
+var S = { type:'expense', scope:'business', cat:'Материалы', pay:'cash', touched:false,
+          kind:'month', offset:0, filter:'all', payf:'all', log:'all', logpay:'all', open:'', q:'' };
+
+var PAYN = { cash:'Наличные', card:'Карта' };
+var PAYS = { cash:'Нал', card:'Карта' };
+function payFilter(list, v){
+  return v === 'all' ? list : list.filter(function(x){ return x.pay === v; });
+}
+function sumBy(list, v){
+  return list.filter(function(x){ return x.pay === v; }).reduce(function(s,x){ return s + x.amount; }, 0);
+}
 
 var $ = function(id){ return document.getElementById(id); };
 var money = function(n){ return new Intl.NumberFormat('ru-RU').format(Math.round(n)); };
@@ -455,13 +529,14 @@ function opHTML(x, showDate, mode){
   var time = ('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2);
   var date = showDate ? d.getDate()+' '+MONTHS[d.getMonth()].slice(0,3)+' ' : '';
   var proj = x.proj ? ' · ' + esc(x.proj) : '';
+  var pay = x.pay ? ' · ' + PAYS[x.pay] : '';
   var act = x.del
     ? '<button class="act" data-undel="'+x.id+'" title="Вернуть">↺</button>'
     : '<button class="act" data-del="'+x.id+'" title="Удалить">×</button>';
-  return '<div class="op'+(x.del?' dead':'')+'">'
+  return '<div class="op'+(x.del?' dead':'')+'" data-edit="'+x.id+'">'
     + '<div class="bar" style="background:'+color+'"></div>'
     + '<div class="t"><div class="n">'+esc(x.title)+'</div>'
-    + '<div class="m">'+esc(x.cat)+' · '+date+time+proj+'</div></div>'
+    + '<div class="m">'+esc(x.cat)+pay+' · '+date+time+proj+'</div></div>'
     + '<div class="v"'+(inc?' style="color:var(--income)"':'')+'>'+(inc?'+':'−')+money(x.amount)+'</div>'
     + (mode==='ro' ? '' : act) + '</div>';
 }
@@ -481,6 +556,84 @@ document.addEventListener('click', function(ev){
   if(id){ ev.stopPropagation();
     items = items.filter(function(x){ return x.id !== id; });
     save(); renderAll(); return; }
+  var row = el.closest ? el.closest('[data-edit]') : null;
+  if(row) openEdit(row.getAttribute('data-edit'));
+});
+
+/* ══ Правка записи ══════════════════════════════════════ */
+var E = null;
+
+function eCatList(){ return E.type==='income' ? CATS.income : CATS[E.scope]; }
+function eSeg(id, v){
+  [].forEach.call($(id).children, function(b){
+    var on = b.getAttribute('data-v') === v;
+    b.className = on ? (id==='eType' ? 'on '+(v==='income'?'inc':'exp') : 'on') : '';
+  });
+}
+function renderEdit(){
+  var list = eCatList();
+  if(list.indexOf(E.cat) === -1) E.cat = list[0];
+  $('eCats').innerHTML = list.map(function(c){
+    return '<button data-ecat="'+c+'"'+(c===E.cat?' class="on"':'')+'>'+c+'</button>';
+  }).join('');
+  $('eScope').className = 'seg small' + (E.type==='income' ? ' hidden' : '');
+  eSeg('eType', E.type); eSeg('eScope', E.scope); eSeg('ePay', E.pay);
+  var raw = parseProject($('eTitle').value);
+  if(!raw){ $('eHint').innerHTML = '<span class="tag n">Без проекта</span>'; }
+  else {
+    var r = resolve(normKey(raw)), known = knownKeys().indexOf(r) >= 0;
+    $('eHint').innerHTML = '<span class="tag">'+esc(known ? projName(r) : raw)+'</span>'
+      + '<span>' + (known ? 'проект' : 'новый проект') + '</span>';
+  }
+}
+function openEdit(id){
+  var x = items.filter(function(i){ return i.id === id; })[0];
+  if(!x) return;
+  E = { id:id, type:x.type, scope:(x.scope==='income'?'business':x.scope), cat:x.cat, pay:x.pay||'cash' };
+  $('eAmount').value = x.amount;
+  $('eTitle').value = x.title;
+  var d = new Date(x.at);
+  $('eWhen').textContent = d.getDate()+' '+MONTHS[d.getMonth()]+' '+d.getFullYear()+', '
+    + ('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2)
+    + (x.del ? ' · удалена' : '');
+  renderEdit();
+  $('modal').classList.remove('hidden');
+}
+function closeEdit(){ E = null; $('modal').classList.add('hidden'); }
+
+$('eCats').addEventListener('click', function(e){
+  var c = e.target.getAttribute('data-ecat'); if(c){ E.cat = c; renderEdit(); }
+});
+$('eType').addEventListener('click', function(e){
+  var v = e.target.getAttribute('data-v'); if(v){ E.type = v; renderEdit(); }
+});
+$('eScope').addEventListener('click', function(e){
+  var v = e.target.getAttribute('data-v'); if(v){ E.scope = v; renderEdit(); }
+});
+$('ePay').addEventListener('click', function(e){
+  var v = e.target.getAttribute('data-v'); if(v){ E.pay = v; renderEdit(); }
+});
+$('eTitle').addEventListener('input', renderEdit);
+$('eAmount').addEventListener('input', function(e){ e.target.value = e.target.value.replace(/[^\d.,]/g,''); });
+$('eCancel').addEventListener('click', closeEdit);
+$('modal').addEventListener('click', function(e){ if(e.target === this) closeEdit(); });
+$('eSave').addEventListener('click', function(){
+  if(!E) return;
+  var v = parseFloat(String($('eAmount').value).replace(',','.'));
+  var text = ($('eTitle').value || '').trim();
+  items.forEach(function(x){
+    if(x.id !== E.id) return;
+    if(v && v > 0) x.amount = v;
+    x.title = text || E.cat;
+    x.type = E.type;
+    x.scope = E.type === 'income' ? 'income' : E.scope;
+    x.cat = E.cat;
+    x.pay = E.pay;
+    var raw = parseProject(x.title);
+    x.proj = raw;
+    x.pkey = raw ? linkKey(raw) : '';
+  });
+  save(); closeEdit(); renderAll();
 });
 
 /* ══ Экран записи ═══════════════════════════════════════ */
@@ -515,10 +668,24 @@ function renderAdd(){
   var el = $('dayNet');
   el.textContent = (net>=0?'+':'−')+money(Math.abs(net))+' ₽';
   el.className = 'big ' + (net>=0?'pos':'neg');
+
+  var ex = t.filter(function(x){ return x.type==='expense'; });
+  var cash = sumBy(ex,'cash'), card = sumBy(ex,'card');
+  $('dayPay').innerHTML = (cash || card)
+    ? '<span>Нал <b>'+money(cash)+'</b></span><span>Карта <b>'+money(card)+'</b></span>'
+    : '';
+
   $('todayList').innerHTML = t.length
     ? t.map(function(x){ return opHTML(x,false); }).join('')
     : '<p class="empty">За сегодня записей нет. Введите сумму и описание выше.</p>';
 }
+
+$('segPay').addEventListener('click', function(e){
+  var v = e.target.getAttribute('data-v'); if(!v) return;
+  S.pay = v;
+  localStorage.setItem('kassa:pay', v);
+  [].forEach.call(this.children, function(b){ b.className = b.getAttribute('data-v')===v?'on':''; });
+});
 
 $('cats').addEventListener('click', function(e){
   var c = e.target.getAttribute('data-cat');
@@ -565,6 +732,7 @@ function submit(){
     type: S.type,
     scope: S.type==='income' ? 'income' : S.scope,
     cat: S.cat,
+    pay: S.pay,
     proj: raw,
     pkey: raw ? linkKey(raw) : '',
     at: new Date().toISOString(),
@@ -609,11 +777,15 @@ function renderProj(){
           + others.map(function(o){ return '<option value="'+esc(o.key)+'">'+esc(o.name)+'</option>'; }).join('')
           + '</select><button class="ghost sm" data-merge="'+esc(p.key)+'">Объединить</button></div>'
         : '';
+      var pcash = sumBy(p.ops.filter(function(x){ return x.type==='expense'; }), 'cash');
+      var pcard = sumBy(p.ops.filter(function(x){ return x.type==='expense'; }), 'card');
       body = '<div class="body">' + opsHTML
         + '<div class="sub" style="margin-top:10px">'
         + '<span>Потрачено <b class="neg">'+money(p.exp)+'</b></span>'
         + (p.inc ? '<span>Получено <b class="pos">'+money(p.inc)+'</b></span>' : '')
-        + '</div>' + sel
+        + '</div>'
+        + ((pcash||pcard) ? '<div class="sub"><span>Нал <b>'+money(pcash)+'</b></span><span>Карта <b>'+money(pcard)+'</b></span></div>' : '')
+        + sel
         + '<div class="merge"><button class="ghost sm" data-rename="'+esc(p.key)+'">Переименовать</button>'
         + '<button class="ghost sm" style="flex:1" data-pcopy="'+esc(p.key)+'">Скопировать смету</button></div></div>';
     }
@@ -662,6 +834,7 @@ $('projList').addEventListener('click', function(e){
     return;
   }
   if(t.tagName === 'SELECT') return;
+  if(t.closest && t.closest('[data-edit]')) return;
   var card = t.closest ? t.closest('[data-prj]') : null;
   if(card){
     var k = card.getAttribute('data-prj');
@@ -685,7 +858,7 @@ function renderStats(){
   $('periodLabel').textContent = p.label;
   $('next').className = S.offset===0 ? 'dim' : '';
 
-  var all = within(live(), p.start, p.end);
+  var all = payFilter(within(live(), p.start, p.end), S.payf);
   var sc = S.filter==='all' ? all : all.filter(function(x){ return x.scope===S.filter; });
   var inc = sum(sc,'income'), exp = sum(sc,'expense'), net = inc-exp;
 
@@ -700,6 +873,14 @@ function renderStats(){
   $('splitP').style.width = (pr/tot*100)+'%';
   $('lblB').textContent = 'Бизнес '+money(bz)+' ₽';
   $('lblP').textContent = 'Личное '+money(pr)+' ₽';
+
+  var exOnly = sc.filter(function(x){ return x.type==='expense'; });
+  var cash = sumBy(exOnly,'cash'), card = sumBy(exOnly,'card');
+  var ct = Math.max(1, cash+card);
+  $('splitC').style.width = (cash/ct*100)+'%';
+  $('splitK').style.width = (card/ct*100)+'%';
+  $('lblC').textContent = 'Наличные '+money(cash)+' ₽';
+  $('lblK').textContent = 'Карта '+money(card)+' ₽';
 
   if(p.buckets){
     $('chartCard').classList.remove('hidden');
@@ -729,10 +910,12 @@ function renderStats(){
     ? sc.map(function(x){ return opHTML(x,true); }).join('')
     : '<p class="empty">В этом периоде записей нет.</p>';
 
-  window.__report = ['Отчёт · '+p.label,
+  window.__report = ['Отчёт · '+p.label
+    + (S.payf!=='all' ? ' · '+PAYN[S.payf] : ''),
     'Доходы: '+money(inc)+' ₽','Расходы: '+money(exp)+' ₽',
     'Итог: '+(net>=0?'+':'−')+money(Math.abs(net))+' ₽',
-    'Бизнес: '+money(bz)+' ₽ · Личное: '+money(pr)+' ₽','',
+    'Бизнес: '+money(bz)+' ₽ · Личное: '+money(pr)+' ₽',
+    'Наличные: '+money(cash)+' ₽ · Карта: '+money(card)+' ₽','',
     'По категориям:'].concat(rows.map(function(r){ return '· '+r[0]+' — '+money(r[1])+' ₽'; }))
     .concat(prows.length ? [''.concat(''), 'По проектам:'].concat(prows.map(function(r){ return '· '+r[0]+' — '+money(r[1])+' ₽'; })) : [])
     .join('\n');
@@ -765,6 +948,12 @@ $('segFilter').addEventListener('click', function(e){
   [].forEach.call(this.children, function(b){ b.className = b.getAttribute('data-v')===v?'on':''; });
   renderStats();
 });
+$('segPayF').addEventListener('click', function(e){
+  var v = e.target.getAttribute('data-v'); if(!v) return;
+  S.payf = v;
+  [].forEach.call(this.children, function(b){ b.className = b.getAttribute('data-v')===v?'on':''; });
+  renderStats();
+});
 $('prev').addEventListener('click', function(){ S.offset--; renderStats(); });
 $('next').addEventListener('click', function(){ if(S.offset<0){ S.offset++; renderStats(); } });
 $('copyBtn').addEventListener('click', function(){ copy(window.__report, this, 'Скопировать отчёт'); });
@@ -774,6 +963,7 @@ function renderLog(){
   var list = items.slice().sort(function(a,b){ return new Date(b.at) - new Date(a.at); });
   if(S.log === 'live') list = list.filter(function(x){ return !x.del; });
   if(S.log === 'dead') list = list.filter(function(x){ return !!x.del; });
+  list = payFilter(list, S.logpay);
   $('logList').innerHTML = list.length
     ? list.map(function(x){
         var h = opHTML(x, true);
@@ -792,6 +982,13 @@ function renderLog(){
 $('segLog').addEventListener('click', function(e){
   var v = e.target.getAttribute('data-v'); if(!v) return;
   S.log = v;
+  [].forEach.call(this.children, function(b){ b.className = b.getAttribute('data-v')===v?'on':''; });
+  renderLog();
+});
+
+$('segLogPay').addEventListener('click', function(e){
+  var v = e.target.getAttribute('data-v'); if(!v) return;
+  S.logpay = v;
   [].forEach.call(this.children, function(b){ b.className = b.getAttribute('data-v')===v?'on':''; });
   renderLog();
 });
@@ -839,6 +1036,8 @@ document.querySelector('.tabs .in').addEventListener('click', function(e){
 function renderAll(){ renderCats(); renderHint(); renderAdd(); renderProj(); renderStats(); renderLog(); }
 
 applyIcon(localStorage.getItem('kassa:icon') || 'dark', false);
+S.pay = localStorage.getItem('kassa:pay') || 'cash';
+[].forEach.call($('segPay').children, function(b){ b.className = b.getAttribute('data-v')===S.pay?'on':''; });
 renderAll();
 
 if('serviceWorker' in navigator){

@@ -1,5 +1,5 @@
 /* Касса — кэш приложения. При каждом обновлении меняйте версию ниже. */
-var CACHE = 'kassa-v4';
+var CACHE = 'kassa-v6';
 var FILES = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png', './icon-light-192.png', './icon-light-512.png'];
 
 self.addEventListener('install', function(e){
